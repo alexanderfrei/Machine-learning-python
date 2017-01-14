@@ -4,9 +4,9 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="collectiveintelligence-book" />
-    <orderEntry type="module" module-name="python-machine-learning-book" />
-    <orderEntry type="module" module-name="MarslandMLAlgo" />
+    <orderEntry type="module" module-name="Segaran" />
+    <orderEntry type="module" module-name="Raschka" />
+    <orderEntry type="module" module-name="Marsland" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />
