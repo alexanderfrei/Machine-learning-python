@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../MarslandMLAlgo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../collectiveintelligence-book" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../python-machine-learning-book" vcs="Git" />
   </component>
 </project>

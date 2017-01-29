@@ -3,9 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ML-python.iml" filepath="$PROJECT_DIR$/.idea/ML-python.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Marsland/.idea/MarslandMLAlgo.iml" filepath="$PROJECT_DIR$/Marsland/.idea/MarslandMLAlgo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Raschka/.idea/python-machine-learning-book.iml" filepath="$PROJECT_DIR$/Raschka/.idea/python-machine-learning-book.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Segaran/.idea/collectiveintelligence-book.iml" filepath="$PROJECT_DIR$/Segaran/.idea/collectiveintelligence-book.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../MarslandMLAlgo/.idea/MarslandMLAlgo.iml" filepath="$PROJECT_DIR$/../MarslandMLAlgo/.idea/MarslandMLAlgo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../collectiveintelligence-book/.idea/collectiveintelligence-book.iml" filepath="$PROJECT_DIR$/../collectiveintelligence-book/.idea/collectiveintelligence-book.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python-machine-learning-book/.idea/python-machine-learning-book.iml" filepath="$PROJECT_DIR$/../python-machine-learning-book/.idea/python-machine-learning-book.iml" />
     </modules>
   </component>
 </project>
