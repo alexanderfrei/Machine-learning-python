@@ -16,6 +16,13 @@ critics = {'Lisa Rose': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.5,
                              'The Night Listener': 3.0, 'Superman Returns': 5.0, 'You, Me and Dupree': 3.5},
            'Toby': {'Snakes on a Plane': 4.5, 'You, Me and Dupree': 1.0, 'Superman Returns': 4.0}}
 
+users = {'user1': ['Google','Yandex','Mail.Ru'],
+         'user2': ['Bing','Yahoo','Google'],
+         'user3': ['Naver','Baidu','Google'],
+         'user4': ['DuckDuckGo'],
+         'user5': ['Naver','Google','DuckDuckGo','Baidu'],
+         'user6': ['Bing','Yahoo','Google','Aol']
+        }
 
 def sim_pearson(prefs, p1, p2):
     from math import sqrt
@@ -124,13 +131,21 @@ def get_recommended_items(prefs, item_match, user):
     rankings.sort(reverse=True)
     return rankings
 
+def transform_users(users):
+    items_dict = {}
+    for user in users:
+        for item in users[user]:
+            items_dict[item] =
 
-print(sim_pearson(critics, 'Lisa Rose', 'Gene Seymour'))
-print(top_matches(critics, 'Toby'))
-print(get_recommendations(critics, 'Toby'))
+#
+#
+# print(sim_pearson(critics, 'Lisa Rose', 'Gene Seymour'))
+# print(top_matches(critics, 'Toby'))
+# print(get_recommendations(critics, 'Toby'))
+#
+# movies = transform_prefs(critics)
+# print(top_matches(movies, 'Superman Returns'))
+#
+# sim_movies_base = calculate_similar_items(critics, 5)
+# print(get_recommended_items(critics, sim_movies_base, 'Toby'))
 
-movies = transform_prefs(critics)
-print(top_matches(movies, 'Superman Returns'))
-
-sim_movies_base = calculate_similar_items(critics, 5)
-print(get_recommended_items(critics, sim_movies_base, 'Toby'))
