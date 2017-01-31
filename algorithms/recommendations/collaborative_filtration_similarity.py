@@ -1,3 +1,5 @@
+from operator import itemgetter
+
 critics = {'Lisa Rose': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.5,
                          'Just My Luck': 3.0, 'Superman Returns': 3.5, 'You, Me and Dupree': 2.5,
                          'The Night Listener': 3.0},
@@ -143,7 +145,6 @@ def transform_dlist(d_lst):
 
 def sim_tanimoto(d_list, sim_key):
     similarity = {}
-    similarity.setdefault(sim_key, {})
     a = len(d_list[sim_key])
     for d_key in d_list:
         if d_key == sim_key:
@@ -153,7 +154,7 @@ def sim_tanimoto(d_list, sim_key):
         for item in d_list[d_key]:
             if item in d_list[sim_key]:
                 c += 1
-        similarity[sim_key][d_key] = c / (a + b - c)
+        similarity[d_key] = c / (a + b - c)
     return similarity
 
 print(sim_pearson(critics, 'Lisa Rose', 'Gene Seymour'))
@@ -167,5 +168,8 @@ sim_movies_base = calculate_similar_items(critics, 5)
 print(get_recommended_items(critics, sim_movies_base, 'Toby'))
 
 engines = transform_dlist(users)
+sim_engines = {}
 for engine in engines:
-    print(sim_tanimoto(engines, engine))
+    sim_engine = sorted(sim_tanimoto(engines, engine).items(), key=itemgetter(1), reverse=True)
+    sim_engines[engine] = sim_engine
+print(sim_engines)
