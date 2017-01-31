@@ -131,21 +131,41 @@ def get_recommended_items(prefs, item_match, user):
     rankings.sort(reverse=True)
     return rankings
 
-def transform_users(users):
+
+def transform_dlist(d_lst):
     items_dict = {}
-    for user in users:
-        for item in users[user]:
-            items_dict[item] =
+    for d_key in d_lst:
+        for item in d_lst[d_key]:
+            items_dict.setdefault(item, [])
+            items_dict[item].append(d_key)
+    return items_dict
 
-#
-#
-# print(sim_pearson(critics, 'Lisa Rose', 'Gene Seymour'))
-# print(top_matches(critics, 'Toby'))
-# print(get_recommendations(critics, 'Toby'))
-#
-# movies = transform_prefs(critics)
-# print(top_matches(movies, 'Superman Returns'))
-#
-# sim_movies_base = calculate_similar_items(critics, 5)
-# print(get_recommended_items(critics, sim_movies_base, 'Toby'))
 
+def sim_tanimoto(d_list, sim_key):
+    similarity = {}
+    similarity.setdefault(sim_key, {})
+    a = len(d_list[sim_key])
+    for d_key in d_list:
+        if d_key == sim_key:
+            continue
+        b = len(d_list[d_key])
+        c = 0
+        for item in d_list[d_key]:
+            if item in d_list[sim_key]:
+                c += 1
+        similarity[sim_key][d_key] = c / (a + b - c)
+    return similarity
+
+print(sim_pearson(critics, 'Lisa Rose', 'Gene Seymour'))
+print(top_matches(critics, 'Toby'))
+print(get_recommendations(critics, 'Toby'))
+
+movies = transform_prefs(critics)
+print(top_matches(movies, 'Superman Returns'))
+
+sim_movies_base = calculate_similar_items(critics, 5)
+print(get_recommended_items(critics, sim_movies_base, 'Toby'))
+
+engines = transform_dlist(users)
+for engine in engines:
+    print(sim_tanimoto(engines, engine))
