@@ -92,3 +92,52 @@ print(Z)
 # 22. Multiply a 5x3 matrix by a 3x2 matrix (real matrix product)
 pr = np.dot(np.ones((5,3)), np.ones((3,2)))
 print(pr)
+
+# 23. Given a 1D array, negate all elements which are between 3 and 8, in place
+sc = np.arange(10)
+sc[(sc > 3) & (sc < 8)] *= -1
+print(sc)
+
+# 24.
+print(sum(range(5),-1))
+from numpy import *
+print(sum(range(5),-1)) # -1 -> axis
+
+# 25.
+Z = np.arange(5)
+print(Z,
+Z**Z,
+3 << Z,
+Z <- Z,
+1j*Z,
+Z/1/1)
+
+# 26.
+print(np.array([3,5,6]) // np.array(2)) # floor divide
+# print(np.array(0) // np.array(0)) # zero
+
+# 27. How to round a float array?
+Z = np.random.uniform(-10,+10,10)
+print (np.trunc(Z + np.copysign(0.5, Z)))
+
+# 28. Extract the integer part of a random array using 5 different methods
+arr = np.arange(3,step=0.25)
+print(arr)
+print(np.trunc(arr))
+print (arr - arr%1)
+print (np.floor(arr))
+print (arr.astype(int))
+
+# 29. Create a 5x5 matrix with row values ranging from 0 to 4
+Z = np.zeros((5,5))
+Z += np.arange(5)
+print(Z)
+
+# 30. Consider a generator function that generates 10 integers and use it to build an array
+def generate():
+    for x in range(10):
+        yield x
+Z = np.fromiter(generate(),dtype=float)
+print(Z)
+
+
