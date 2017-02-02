@@ -44,3 +44,5 @@ Z = np.arange(100)
 v = np.random.uniform(0,100)
 index = (np.abs(Z-v)).argmin()
 print(v, Z[index])
+
+# 43.
