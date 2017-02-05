@@ -1,0 +1,8 @@
+import seaborn as sns; sns.set()
+flights = sns.load_dataset("flights")
+flights = flights.pivot("month", "year", "passengers")
+cmap = sns.cubehelix_palette(as_cmap=True, rot=-.3, light=1)
+g = sns.clustermap(flights, method="ward", metric="correlation", cmap=cmap, linewidths=.4)
+sns.plt.setp(g.ax_heatmap.yaxis.get_majorticklabels(), rotation=0)
+# sns.plt.subplots_adjust(left=0.1, right=0.9, top=0.95, bottom=0.15)
+sns.plt.show()
