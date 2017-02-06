@@ -82,3 +82,15 @@ data = data.iloc[:, 1:]
 
 hclust = hcluster(data)
 dendro(hclust, labels=rownames)
+
+import numpy as np
+X = np.array(data)
+from matplotlib import pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+Z = linkage(X, method='average', metric='correlation')
+dendrogram(Z, leaf_rotation=90, labels=rownames)
+plt.show()
+
+
+
+
