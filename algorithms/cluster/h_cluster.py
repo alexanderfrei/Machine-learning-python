@@ -75,22 +75,23 @@ def dendro(clust, labels=None, n=0):
     if clust.left is not None: dendro(clust.left, labels=labels, n=n + 1)
     if clust.right is not None: dendro(clust.right, labels=labels, n=n + 1)
 
-data = pd.read_csv('rss_word_count.csv', header=0, delimiter=',')
-rownames = list(data.loc[:, 'blog'])
-colnames = data.iloc[0, 1:]
-data = data.iloc[:, 1:]
-
-hclust = hcluster(data)
-dendro(hclust, labels=rownames)
-
-import numpy as np
-X = np.array(data)
-from matplotlib import pyplot as plt
-from scipy.cluster.hierarchy import dendrogram, linkage
-Z = linkage(X, method='average', metric='correlation')
-dendrogram(Z, leaf_rotation=90, labels=rownames)
-plt.show()
 
 
+if __name__ == "__main__":
+    data = pd.read_csv('rss_word_count.csv', header=0, delimiter=',')
+    rownames = list(data.loc[:, 'blog'])
+    colnames = data.iloc[0, 1:]
+    data = data.iloc[:, 1:]
 
+    hclust = hcluster(data)
+    dendro(hclust, labels=rownames)
 
+    import numpy as np
+
+    X = np.array(data)
+    from matplotlib import pyplot as plt
+    from scipy.cluster.hierarchy import dendrogram, linkage
+
+    Z = linkage(X, method='average', metric='correlation')
+    dendrogram(Z, leaf_rotation=90, labels=rownames)
+    plt.show()
