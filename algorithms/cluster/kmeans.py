@@ -2,26 +2,17 @@ import random
 from h_cluster import pearson as pearson
 import pandas as pd
 
-# def kcluct(data, distance=pearson, k=4):
-#
+def kmeans_clust(data, distance=pearson, k=4):
 
-if __name__ == "__main__":
-    data = pd.read_csv('rss_word_count.csv', header=0, delimiter=',')
-    rownames = list(data.loc[:, 'blog'])
-    colnames = data.iloc[0, 1:]
-    data = data.iloc[:, 1:]
-
-    distance = pearson
-    k = 4
     # find min and max points
     ranges = [(data.iloc[:,j].min(), data.iloc[:,j].max()) for j in range(data.shape[1])]
     # random centroids
     clusters = [[random.random() * (ranges[i][1] - ranges[i][0]) + ranges[i][0]
                  for i in range(data.shape[1])] for j in range(k)]
-
+    # start iterating
     lastmatches = None
     for it in range(100):
-        print('Iteration {}'.format(it))
+        print('Iteration {}..'.format(it + 1))
         bestmatches = [[] for i in range(k)]
 
         # find nearest centroids for each line
@@ -33,19 +24,34 @@ if __name__ == "__main__":
                 if d < distance(clusters[bestmatch], row): bestmatch = i
             bestmatches[bestmatch].append(j)
 
-        # stop if no changes
-        if bestmatches == lastmatches: break
+        # success if no changes
+        print(bestmatches)
+        print(lastmatches)
+        if bestmatches == lastmatches:
+            break
         lastmatches = bestmatches
 
-        # move centroids to
+        # compute new cluster centers
         for i in range(k):
             avgs = [0.0] * data.shape[1]
             if len(bestmatches[i]) > 0:
-                for rowid in bestmatches[i]:
-                    for m in range(data.shape[1]):
-                        avgs[m] += data.iloc(rowid, m)
+                for obj_id in bestmatches[i]:
+                    for ft in range(data.shape[1]):
+                        avgs[ft] += data.iloc[obj_id, ft]
                 for j in range(len(avgs)):
-                    avgs[j]/=len(bestmatches[i])
-                clusters[i]=avgs
+                    avgs[j] /= len(bestmatches[i])
+                clusters[i] = avgs
 
-        print(bestmatches)
+    return bestmatches
+
+data = pd.read_csv('rss_word_count.csv', header=0, delimiter=',')
+rownames = list(data.loc[:, 'blog'])
+# colnames = data.iloc[0, 1:]
+data = data.iloc[:, 1:]
+
+clusters = kmeans_clust(data)
+for c in clusters:
+    print('')
+    for feed in c:
+        print(rownames[feed],end=' ')
+
