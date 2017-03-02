@@ -146,7 +146,17 @@ def md_classify(obs, tree):
     else:
         v = obs[tree.col]
         if not v:
-            # TODO
+            tr, fr = md_classify(obs, tree.tb), md_classify(obs, tree.fb)
+            tcount = sum(tr.values())
+            fcount = sum(fr.values())
+            tw = float(tcount) / (tcount + fcount)
+            fw = float(fcount) / (tcount + fcount)
+            result = {}
+            for k, v in tr.items():
+                result[k] = v * tw
+            for k, v in fr.items():
+                result[k] = v * fw
+            return result
         else:
             v = obs[tree.col]
             branch = None
@@ -186,7 +196,6 @@ def prune(tree, mingain):
 
 
 
-
 def tree_var(rows):
     # for float and int features
     if len(rows) == 0:
@@ -198,6 +207,10 @@ def tree_var(rows):
 
 
 tree = build_tree(my_data)
-print(classify(['(direct)', 'USA', 'yes', 5], tree))
-prune(tree, 1)
-print_tree(tree)
+print(md_classify(['google',None,'yes',None],tree))
+print(md_classify(['google','France',None,None],tree))
+
+# print(classify(['(direct)', 'USA', 'yes', 5], tree))
+# prune(tree, 1)
+# print_tree(tree)
+
