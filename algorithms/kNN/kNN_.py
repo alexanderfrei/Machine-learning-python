@@ -68,19 +68,52 @@ def subtract_weight(dist, const=1.0):
         return const - dist
 
 
-def gaussian(dist, sigma=10.0):
+def gaussian(dist, sigma=1.0):
     return math.e ** (-dist ** 2 / (2 * sigma ** 2))
+# / math.sqrt(2 * math.pi * sigma ** 2)
 
 
+def weighted_knn(data,vec1,k=5,weight_f=gaussian):
 
+    dlist = get_distances(data, vec1)
+    avg = 0.0
+    total_weight = 0
 
+    for i in range(k):
+        dist = dlist[i][0]
+        idx = dlist[i][1]
+        weight = weight_f(dist)
+        avg += weight * data[idx]['result']
+        total_weight += weight
+    avg /= total_weight
+    return avg
 
+def wine_set3( ):
+    rows = wine_set1()
+    for row in rows:
+        if random() < 0.5:
+            row['result'] *= 0.6
+    return rows
 
+def probguess(data,vec1,low,high,k=10,weightf=gaussian):
+    dlist = get_distances(data, vec1)
+    nweight = 0.0
+    tweight = 0.0
+    for i in range(k):
+        dist = dlist[i][0]
+        idx = dlist[i][1]
+        weight = weightf(dist)
+        v = data[idx]['result']
+        print(v,low,high)
+        if v >= low and v <= high:
+            nweight += weight
+        tweight += weight
+    if tweight == 0: return 0
+    return nweight / tweight
 
-
-#
-# print(wine_price(95, 3))
-data = wine_set1()
-# print(get_distances(data))
-# print(get_distances(data, (0, 300)))
-print(knn_estimate(data, (60, 3)))
+data = wine_set3()
+print(probguess(data, (80,10), 40, 80))
+# print(data)
+# print(get_distances(data, (60, 10)))
+# print(knn_estimate(data, (99, 5)))
+# print(weighted_knn(data, (99, 5)))
