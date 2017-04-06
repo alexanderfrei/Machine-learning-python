@@ -16,7 +16,6 @@ def optimal_cutoff(target, predicted):
     Parameters
     ----------
     target : Matrix with dependent or target data, where rows are observations
-
     predicted : Matrix with predicted data, where rows are observations
 
     Returns
@@ -34,7 +33,10 @@ def optimal_cutoff(target, predicted):
 
 def get_x(df):
 
-    p_class = pd.get_dummies(df['Pclass'], prefix="Pclass")
+    # one hot recoding of class is mistake - we lose part of information
+    # p_class = pd.get_dummies(df['Pclass'], prefix="Pclass")
+    p_class = df['Pclass']
+
     gender = pd.get_dummies(df['Sex'], prefix="Sex")
     embarked = pd.get_dummies(df['Embarked'], prefix="Embarked")
 
@@ -72,10 +74,15 @@ prediction = np.where(test_proba[:,1] > cutoff, 1, 0)
 
 submission = pd.concat([test['PassengerId'], pd.DataFrame(prediction.astype('int'))], axis=1)
 submission.rename(columns={0: "Survived"}, inplace=True)
-submission.to_csv("submission/lr1.csv", index=False)
+submission.to_csv("submission/lr2.csv", index=False)
 
-# TODO 2) grid, pipeline
 
+# TODO 2) cv, grid, pipeline parameters 3) random forest + importance 4) xgboost 5) solutions
+
+
+
+
+#### exploration
 
 # print(pd.crosstab(gender_sub.Survived,gender_sub.Survived))
 # df = pd.DataFrame({'col1':np.random.randn(100),'col2':np.random.randn(100)})
@@ -86,3 +93,14 @@ submission.to_csv("submission/lr1.csv", index=False)
 #                     'c': np.random.randn(1000) - 1}, columns=['a', 'b', 'c'])
 # df4.diff().hist(alpha=0.5, color='k')
 # plt.show()
+
+
+#### for test results of 2 submissions
+
+# cd C:\Users\Aleksandr.Turutin\PycharmProjects\python_machine_learning\practice\kaggle\titanic\submission
+# df1 = pd.read_csv("lr1.csv", header=0)
+# df2 = pd.read_csv("lr2.csv", header=0)
+# df1.rename(columns={'Survived': 1}, inplace=True)
+# df2.rename(columns={'Survived': 2}, inplace=True)
+# df = pd.concat([df1[1], df2[2]], axis=1)
+# pd.crosstab(df[1],df[2])
