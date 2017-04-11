@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -8,8 +7,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import learning_curve
-from sklearn.model_selection import validation_curve
 
 # window parameters
 
@@ -18,7 +15,6 @@ pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
 # functions
-
 
 def get_x(df):
 
@@ -64,7 +60,10 @@ pipe_lr.fit(X_train, y_train)
 # print('CV accuracy scores: %s' % scores)
 # print('CV accuracy: %.3f +/- %.3f' % (np.mean(scores), np.std(scores)))
 
+################################################################################################
 # learning curves
+import matplotlib.pyplot as plt
+from sklearn.model_selection import learning_curve
 train_sizes, train_scores, test_scores =\
                 learning_curve(estimator=pipe_lr,
                                X=X_train,
@@ -105,8 +104,11 @@ plt.ylim([0.75, 0.85])
 plt.tight_layout()
 # plt.savefig('./figures/learning_curve.png', dpi=300)
 plt.show()
+################################################################################################
+
 
 # validation parameter curve
+# from sklearn.model_selection import validation_curve
 #
 # param_range = [0.05, 0.075, 0.1, 0.125, 0.15]
 # train_scores, test_scores = validation_curve(
@@ -170,9 +172,6 @@ plt.show()
 # submission = pd.concat([predict_data['PassengerId'], pd.DataFrame(y_pred.astype('int'))], axis=1)
 # submission.rename(columns={0: "Survived"}, inplace=True)
 # submission.to_csv("submission/lr5.csv", index=False)
-
-
-# TODO 3) random forest + importance 4) xgboost 5) solutions
 
 
 #### exploration

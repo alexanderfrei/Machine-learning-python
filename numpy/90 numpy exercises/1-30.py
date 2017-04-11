@@ -1,3 +1,4 @@
+# http://www.labri.fr/perso/nrougier/teaching/numpy.100/
 # 1. import
 import numpy as np
 
