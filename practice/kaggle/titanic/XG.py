@@ -26,75 +26,70 @@ if __name__ == "__main__":
     replace_cabin(test)
 
     ####################################################################################################
-    #
+    # fit xgb
 
     from xgboost import XGBClassifier
-    from sklearn.model_selection import GridSearchCV
+
+    def xgb_fit(alg, X, y, score='auc', cv=5, early_stopping=50):
+
+        import xgboost as xgb
+        from sklearn import metrics
+        import matplotlib.pyplot as plt
+
+        xg_train = xgb.DMatrix(X, label=y)
+        cv_result = xgb.cv(alg.get_xgb_params(), xg_train,
+                           num_boost_round=alg.get_params()['n_estimators'], nfold=cv,
+                           metrics=score, early_stopping_rounds=early_stopping)
+
+        alg.set_params(n_estimators=cv_result.shape[0])
+        alg.fit(X, y, eval_metric=score)
+
+        predictions = alg.predict(X)
+        pred_prob = alg.predict_proba(X)[:, 1]
+
+        print(alg)
+        print("Accuracy : %.4g" % metrics.accuracy_score(y, predictions))
+        print("AUC Score (Train): %f" % metrics.roc_auc_score(y, pred_prob))
+
+        # feat_imp = pd.Series(alg.booster().get_fscore()).sort_values(ascending=False)
+        # feat_imp.plot(kind='bar', title='Feature Importances')
+        # plt.ylabel('Feature Importance Score')
+        # plt.show()
+
+    # 0.81340
+    xbm_best = XGBClassifier(max_depth=3,
+                             min_child_weight=1,
+                             learning_rate=0.01,
+                             n_estimators=1000,
+                             subsample=0.8,
+                             colsample_bytree=0.9)
+
+    xgb_fit(xbm_best, train.iloc[:, 1:], train.iloc[:, 0])
 
     ####################################################################################################
     # grid search
 
-    # gbm = XGBClassifier(silent=True)
-    # param_grid = {'max_depth': [4],
-    #               'learning_rate': [0.1],
-    #               'n_estimators': [500],
-    #               'subsample': [0.8],
-    #               'colsample_bytree': [0.8],
-    #               'gamma': [0],
-    #               'min_child_weight': [1]
+    # from sklearn.model_selection import GridSearchCV
+    #
+    # param_grid = {'learning_rate': np.linspace(0.005, 0.03, 10),
     #               }
     #
-    # gs = GridSearchCV(estimator=gbm,
+    # gs = GridSearchCV(estimator=xbm_best,
     #                   param_grid=param_grid,
-    #                   scoring='accuracy',
-    #                   cv=10, n_jobs=-1)
+    #                   scoring='roc_auc',
+    #                   cv=5, n_jobs=-1)
+    #
     # gs = gs.fit(train.iloc[:, 1:], train.iloc[:, 0])
-    # print(gs.best_estimator_, gs.best_score_)
+    # [print("{}, mean: {}, std: {} ".format(param, score, std)) for (score, std, param) in zip(
+    #     gs.cv_results_['mean_test_score'],
+    #     gs.cv_results_['std_test_score'],
+    #     gs.cv_results_['params'])]
+    # print(gs.best_params_, gs.best_score_)
+    #
     # xbm_best = gs.best_estimator_
 
-    ####################################################################################################
-    # fit xgb
-
-    # TODO 1) wrap model fit function 2) parameters tuning 3) early stop
-
-    xbm = XGBClassifier(max_depth=3,
-                        learning_rate=0.08,
-                        n_estimators=100,
-                        subsample=0.8,
-                        colsample_bytree=0.8,
-                        colsample_bylevel=0.8,
-                        gamma=0,
-                        reg_alpha=0, reg_lambda=1, min_child_weight=1,
-                        objective='binary:logistic')
-
-    import xgboost as xgb
-    from sklearn import metrics
-
-    xg_train = xgb.DMatrix(train.iloc[:, 1:], label=train.iloc[:, 0])
-    cv_result = xgb.cv(xbm.get_xgb_params(), xg_train,
-                       num_boost_round=xbm.get_params()['n_estimators'], nfold=5,
-                       metrics='auc', early_stopping_rounds=50)
-
-    xbm.set_params(n_estimators=cv_result.shape[0])
-    xbm.fit(train.iloc[:, 1:], train.iloc[:, 0], eval_metric='auc')
-
-    predictions = xbm.predict(train.iloc[:, 1:])
-    pred_prob = xbm.predict_proba(train.iloc[:, 1:])[:, 1]
-
-    print("Accuracy : %.4g" % metrics.accuracy_score(train.iloc[:, 0], predictions))
-    print("AUC Score (Train): %f" % metrics.roc_auc_score(train.iloc[:, 0], pred_prob))
-
-    import matplotlib.pyplot as plt
-    feat_imp = pd.Series(xbm.booster().get_fscore()).sort_values(ascending=False)
-    # xgb.plot_importance(xbm_best)
-    # feat_imp.plot(kind='bar', title='Feature Importances')
-    # plt.ylabel('Feature Importance Score')
-    # plt.show()
-
-    xbm_best = xbm
-
     # ####################################################################################################
-    draw_learning_curve(xbm_best, train.iloc[:, 1:], train.iloc[:, 0])
+    draw_learning_curve(xbm_best, train.iloc[:, 1:], train.iloc[:, 0], cv=5, scoring='roc_auc')
 
     predictions = xbm_best.predict(test)
     predictions = pd.DataFrame(predictions, columns=['Survived'])
