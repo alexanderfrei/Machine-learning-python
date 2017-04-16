@@ -1,5 +1,5 @@
 
-def draw_learning_curve(estimator, X, y, scoring="accuracy", cv=10, lower=0.75, higher=0.95):
+def draw_learning_curve(estimator, X, y, scoring="accuracy", cv=5, lower=0.75, higher=0.95):
 
     from sklearn.model_selection import learning_curve
     import matplotlib.pyplot as plt
@@ -41,3 +41,5 @@ def draw_learning_curve(estimator, X, y, scoring="accuracy", cv=10, lower=0.75, 
     plt.ylim([lower, higher])
     plt.tight_layout()
     plt.show()
+
+

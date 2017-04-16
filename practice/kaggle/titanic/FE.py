@@ -1,4 +1,4 @@
-# feature preprocessing and engineering
+# preprocessing and feature engineering
 
 import pandas as pd
 import numpy as np
@@ -69,19 +69,6 @@ def embarked_impute(train, test):
     return train, test
 
 
-def dummies(train, test,
-            columns=['Pclass', 'Sex', 'Embarked', 'Ticket_Lett', 'Cabin_Letter', 'Name_Title', 'Fam_Size']):
-    for column in columns:
-        train[column] = train[column].apply(lambda x: str(x))
-        test[column] = test[column].apply(lambda x: str(x))
-        good_cols = [column + '_' + i for i in train[column].unique() if i in test[column].unique()]
-        train = pd.concat((train, pd.get_dummies(train[column], prefix=column)[good_cols]), axis=1)
-        test = pd.concat((test, pd.get_dummies(test[column], prefix=column)[good_cols]), axis=1)
-        del train[column]
-        del test[column]
-    return train, test
-
-
 def drop(train, test, bye=['PassengerId']):
     for i in [train, test]:
         for z in bye:
@@ -91,3 +78,9 @@ def drop(train, test, bye=['PassengerId']):
 
 def replace_cabin(df):
     df.rename(columns=lambda x: x.replace('[','').replace(']','').replace(' ','').replace(',',''), inplace=True)
+
+
+def save_submission(sub, X_test, estimator, pred_column, id):
+    predictions = pd.DataFrame(estimator.predict(X_test), columns=[pred_column])
+    predictions = pd.concat((id, predictions), axis=1)
+    predictions.to_csv(sub, sep=",", index=False)
