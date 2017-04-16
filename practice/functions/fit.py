@@ -37,7 +37,7 @@ def xgb_fit(alg, X, y, score='auc', cv=5, early_stopping=50, show_feat=False):
 
 def grid_search(estimator, params, X, y, score='roc_auc', cv=5, n_jobs=-1):
     """
-    Grid Search wrapper with results
+    Grid Search wrapper with results print
     :return: best estimator
     """
 
@@ -57,3 +57,41 @@ def grid_search(estimator, params, X, y, score='roc_auc', cv=5, n_jobs=-1):
 
     print("Best params: {} \nBest score: {}".format(gs.best_params_, gs.best_score_))
     return gs.best_estimator_
+
+
+def get_oof(clf, x_train, y_train, x_test, n_splits=5):
+    """
+    Out-of-fold learning
+    Prevent overfitting
+    :param clf: estimator
+    :param x_train: ndarray
+    :param y_train: ndarray
+    :param x_test: ndarray
+    :param n_splits: number of splits
+    :return: oof_train (prediction by cv, 0/1 for binary), oof_test (prediction within ALL cv iterations,
+    by majority vote)
+    """
+
+    from sklearn.model_selection import KFold
+    import numpy as np
+
+    n_train = x_train.shape[0]
+    n_test = x_test.shape[0]
+    kf = KFold(n_splits)
+
+    oof_train = np.zeros((n_train,))
+    oof_test = np.zeros((n_test,))
+    oof_test_skf = np.empty((n_splits, n_test))
+
+    i = 0
+    for train_index, test_index in kf.split(x_train):
+        x_tr, x_te = x_train[train_index], x_train[test_index]
+        y_tr = y_train[train_index]
+        clf.fit(x_tr, y_tr)
+        oof_train[test_index] = clf.predict(x_te)
+        oof_test_skf[i, :] = clf.predict(x_test)
+        i += 1
+
+    oof_test[:] = oof_test_skf.mean(axis=0)
+    print("_ OOF learned _")
+    return oof_train.reshape(-1, 1), oof_test.reshape(-1, 1)

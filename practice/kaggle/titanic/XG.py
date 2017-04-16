@@ -11,6 +11,10 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from xgboost import XGBClassifier
 
+    pd.set_option('display.width', 1500)
+
+    ############################################################################################################
+
     train = pd.read_csv(os.path.join('data', 'train.csv'))
     test = pd.read_csv(os.path.join('data', 'test.csv'))
 
