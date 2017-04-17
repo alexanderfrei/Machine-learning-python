@@ -26,6 +26,8 @@ df.Survived.groupby(df.Pclass).agg(['mean','count'])
 
 # apply
 train['Name_Len'] = train['Name'].apply(lambda x: len(x))
+# value_counts by all columns
+df.apply(pd.Series.value_counts)
 
 # cut
 pd.cut(train['Age'],3)
@@ -37,11 +39,11 @@ train['Cabin'].fillna(0, inplace=True)
 df.loc[(df['Age'] > 16) & (df['Age'] <= 32), 'Age'].mean()
 train.loc[(df['Cabin'] != 0), 'Cabin'] = 1
 
-# change columns name
-df.columns = [x.lower() for x in df.columns]
-
 # one hot
-pd.get_dummies(pd.cut(train['pclass'],5), prefix="pclass")
+pd.get_dummies(pd.cut(train['Pclass'],5), prefix="Pclass")
 
 # sorting
 df.sort_values(by=('Age'))
+
+# change columns name
+df.columns = [x.lower() for x in df.columns]
