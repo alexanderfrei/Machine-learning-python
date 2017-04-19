@@ -53,10 +53,19 @@ if __name__ == "__main__":
                  'oob_score': True,
                  'n_jobs': -1}
 
-    rf = RandomForestClassifier(**rf_params)
-    rf.fit(x_train, y_train)
-    predictions = rf.predict(test)
-    print("%.4f" % rf.oob_score_)
+    n_iter = 15
+    pred = np.zeros([test.shape[0], n_iter])
+    for i in range(n_iter):
+        rf = RandomForestClassifier(**rf_params, random_state=None)
+        rf.fit(x_train, y_train)
+        print("%.4f" % rf.oob_score_)
+        pred[:, i] = rf.predict(test)
+
+    # print(pred.mean(axis=1).round())
+    predictions = pred.mean(axis=1).round().astype(int)
+
+    # predictions = rf.predict(test)
+    # print("%.4f" % rf.oob_score_)
 
     # ada_params = {
     #     'n_estimators': 500,
@@ -121,3 +130,6 @@ if __name__ == "__main__":
 
 # TODO 0) tune 1-level clf
 # TODO 1) add xgboost to first level 2) predictions corrplot (влияет - не влияет?) 3) cv+gridsearch tuning level 2
+
+
+
