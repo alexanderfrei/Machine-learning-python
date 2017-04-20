@@ -46,7 +46,8 @@ def grid_search(estimator, params, X, y, scoring='roc_auc', cv=5):
     gs = GridSearchCV(estimator=estimator,
                       param_grid=params,
                       scoring=scoring,
-                      cv=cv, n_jobs=-1)
+                      cv=cv, n_jobs=-1,
+                      verbose=2)
 
     gs = gs.fit(X, y)
 

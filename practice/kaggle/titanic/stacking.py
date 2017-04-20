@@ -47,35 +47,15 @@ if __name__ == "__main__":
 
     # 0.823
 
-    rf = RandomForestClassifier(max_features='auto',
-                                random_state=1,
-                                oob_score=True,
-                                n_jobs=-1,
-                                criterion='gini',
-                                warm_start=True)
-
-    grid_params = {'n_estimators': range(500, 900, 10),
-                 'min_samples_split': [10],
-                 'min_samples_leaf': [1]}
-
-    rf_best = grid_search(rf, grid_params, train.iloc[:, 1:], train.iloc[:, 0], scoring='accuracy', cv=10)
-
-
-    # from sklearn.model_selection import ParameterGrid
-    # best_score = 0
-    # res = []
-    # for par in ParameterGrid(grid_params):
-    #     rf.set_params(**par)
-    #     rf.fit(train.iloc[:, 1:], train.iloc[:, 0])
-    #     res.append([par, rf.oob_score_])
-    #     print("par: {}, oob_score: {}".format(par, rf.oob_score_))
-    #     if rf.oob_score_ > best_score:
-    #         best_score = rf.oob_score_
-    #         best_par = par
-    # rf_best = rf.set_params(**best_par)
-    # print("OOB: %0.5f" % best_score)
-    # print("Grid:", rf_best)
-    # print(res)
+    rf_params = RandomForestClassifier(max_features='auto',
+                                       random_state=2,
+                                       oob_score=True,
+                                       n_jobs=-1,
+                                       criterion='gini',
+                                       warm_start=True,
+                                       n_estimators=200,
+                                       min_samples_split=10,
+                                       min_samples_leaf=1)
 
     # n_iter = 15
     # pred = np.zeros([test.shape[0], n_iter])
@@ -88,14 +68,16 @@ if __name__ == "__main__":
     # print(pred.mean(axis=1).round())
     # predictions = pred.mean(axis=1).round().astype(int)
 
-    predictions = rf_best.predict(test)
-    # print("%.4f" % rf.oob_score_)
 
-    # ada_params = {
-    #     'n_estimators': 500,
-    #     'learning_rate': 0.75
-    # }
-    #
+    ada = AdaBoostClassifier()
+    ada_params = {
+        'n_estimators': 500,
+        'learning_rate': 0.75
+    }
+
+    best = grid_search(rf, ada_params, train.iloc[:, 1:], train.iloc[:, 0], scoring='accuracy', cv=10)
+    predictions = best.predict(test)
+
     # et_params = {
     #     'n_jobs': -1,
     #     'n_estimators': 500,
