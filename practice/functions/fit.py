@@ -35,7 +35,7 @@ def xgb_fit(alg, X, y, score='auc', cv=5, early_stopping=50, show_feat=False):
         plt.show()
 
 
-def grid_search(estimator, params, X, y, score='roc_auc', cv=5, n_jobs=-1):
+def grid_search(estimator, params, X, y, scoring='roc_auc', cv=5):
     """
     Grid Search wrapper with results print
     :return: best estimator
@@ -45,8 +45,8 @@ def grid_search(estimator, params, X, y, score='roc_auc', cv=5, n_jobs=-1):
 
     gs = GridSearchCV(estimator=estimator,
                       param_grid=params,
-                      scoring=score,
-                      cv=cv, n_jobs=n_jobs)
+                      scoring=scoring,
+                      cv=cv, n_jobs=-1)
 
     gs = gs.fit(X, y)
 

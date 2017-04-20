@@ -1,5 +1,6 @@
 import os
 from practice.kaggle.titanic.FE import *
+from practice.functions.preprocessing import *
 
 train = pd.read_csv(os.path.join('data', 'train.csv'))
 test = pd.read_csv(os.path.join('data', 'test.csv'))
@@ -12,13 +13,16 @@ train, test = embarked_impute(train, test)
 train, test = fam_size(train, test)
 test['Fare'].fillna(train['Fare'].mean(), inplace = True)
 train, test = ticket_grouped(train, test)
-train, test = dummies(train, test, columns = ['Pclass', 'Sex', 'Embarked', 'Ticket_Lett',
-                                                                     'Cabin_Letter', 'Name_Title', 'Fam_Size'])
+
 train, test = drop(train, test)
+train, test = dummies(train, test, columns = ['Pclass', 'Sex', 'Embarked', 'Ticket_Lett',
+                                              'Cabin_Letter', 'Name_Title', 'Fam_Size'])
+
 
 ####################################################################################################
 # RF
 
+# 0.823
 from sklearn.ensemble import RandomForestClassifier
 rf = RandomForestClassifier(criterion='gini',
                              n_estimators=700,
