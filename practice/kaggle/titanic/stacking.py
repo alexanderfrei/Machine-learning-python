@@ -57,36 +57,23 @@ if __name__ == "__main__":
                                        min_samples_split=10,
                                        min_samples_leaf=1)
 
-    # n_iter = 15
-    # pred = np.zeros([test.shape[0], n_iter])
-    # for i in range(n_iter):
-    #     rf = RandomForestClassifier(**rf_params, random_state=None)
-    #     rf.fit(x_train, y_train)
-    #     print("%.4f" % rf.oob_score_)
-    #     pred[:, i] = rf.predict(test)
-
-    # print(pred.mean(axis=1).round())
-    # predictions = pred.mean(axis=1).round().astype(int)
-
-
-    ada = AdaBoostClassifier()
     ada_params = {
-        'n_estimators': 500,
-        'learning_rate': 0.75
+        'n_estimators': 340,
+        'learning_rate': 0.06
     }
 
-    best = grid_search(rf, ada_params, train.iloc[:, 1:], train.iloc[:, 0], scoring='accuracy', cv=10)
+    et_params = {
+        'n_jobs': -1,
+        'n_estimators': 500,
+        # 'max_features': 0.5,
+        'max_depth': 8,
+        'min_samples_leaf': 2,
+        'verbose': 0
+    }
+
+    best = grid_search(et, et_params, train.iloc[:, 1:], train.iloc[:, 0], scoring='accuracy', cv=5)
     predictions = best.predict(test)
 
-    # et_params = {
-    #     'n_jobs': -1,
-    #     'n_estimators': 500,
-    #     # 'max_features': 0.5,
-    #     'max_depth': 8,
-    #     'min_samples_leaf': 2,
-    #     'verbose': 0
-    # }
-    #
     # gb_params = {
     #     'n_estimators': 500,
     #     # 'max_features': 0.2,
@@ -131,7 +118,7 @@ if __name__ == "__main__":
     # predictions = gbm.predict(x_test)
     #
 
-    sub = 'submission/rf.csv'
+    sub = 'submission/ada.csv'
     pd.DataFrame({'PassengerId': pass_id,
                   'Survived': predictions}).to_csv(sub, index=False)
 
@@ -139,4 +126,15 @@ if __name__ == "__main__":
 # TODO 1) add xgboost to first level 2) predictions corrplot (влияет - не влияет?) 3) cv+gridsearch tuning level 2
 
 
+
+    # n_iter = 15
+    # pred = np.zeros([test.shape[0], n_iter])
+    # for i in range(n_iter):
+    #     rf = RandomForestClassifier(**rf_params, random_state=None)
+    #     rf.fit(x_train, y_train)
+    #     print("%.4f" % rf.oob_score_)
+    #     pred[:, i] = rf.predict(test)
+
+    # print(pred.mean(axis=1).round())
+    # predictions = pred.mean(axis=1).round().astype(int)
 
