@@ -45,9 +45,7 @@ if __name__ == "__main__":
 
     ############################################################################################################
 
-    # 0.823
-
-    rf_params = RandomForestClassifier(max_features='auto',
+    rf = RandomForestClassifier(max_features='auto',
                                        random_state=2,
                                        oob_score=True,
                                        n_jobs=-1,
@@ -63,69 +61,61 @@ if __name__ == "__main__":
     }
 
     et_params = {
-        'n_jobs': -1,
-        'n_estimators': 500,
-        # 'max_features': 0.5,
+        'n_estimators': 150,
+        'max_features': 0.6,
         'max_depth': 8,
-        'min_samples_leaf': 2,
-        'verbose': 0
+        'min_samples_leaf': 1
     }
 
-    best = grid_search(et, et_params, train.iloc[:, 1:], train.iloc[:, 0], scoring='accuracy', cv=5)
-    predictions = best.predict(test)
+    gb_params = {
+        'n_estimators': 400,
+        'max_features': 0.4,
+        'max_depth': 9,
+        'min_samples_leaf': 1
+    }
 
-    # gb_params = {
-    #     'n_estimators': 500,
-    #     # 'max_features': 0.2,
-    #     'max_depth': 5,
-    #     'min_samples_leaf': 2,
-    #     'verbose': 0
-    # }
-    #
-    # svc_params = {
-    #     'kernel': 'linear',
-    #     'C': 0.025
-    # }
-    #
+    svc_params = {
+        'kernel': 'linear',
+        'C': 0.1
+    }
+
     # rf = RandomForestClassifier(**rf_params)
-    # ada = AdaBoostClassifier(**ada_params)
-    # et = ExtraTreesClassifier(**et_params)
-    # gb = GradientBoostingClassifier(**gb_params)
-    # svc = SVC(**svc_params)
-    #
-    # rf_oof_train, rf_oof_test = get_oof(rf, x_train, y_train, test)
-    # ada_oof_train, ada_oof_test = get_oof(ada, x_train, y_train, test)
-    # et_oof_train, et_oof_test = get_oof(et, x_train, y_train, test)
-    # gb_oof_train, gb_oof_test = get_oof(gb, x_train, y_train, test)
-    # svc_oof_train, svc_oof_test = get_oof(svc, x_train, y_train, test)
-    #
-    # x_train = np.concatenate((et_oof_train, rf_oof_train, ada_oof_train, gb_oof_train, svc_oof_train), axis=1)
-    # x_test = np.concatenate((et_oof_test, rf_oof_test, ada_oof_test, svc_oof_test), axis=1)
+    ada = AdaBoostClassifier(**ada_params)
+    et = ExtraTreesClassifier(**et_params)
+    gb = GradientBoostingClassifier(**gb_params)
+    svc = SVC(**svc_params)
 
-    # gbm = XGBClassifier(
-    #     # learning_rate = 0.02,
-    #     n_estimators=2000,
-    #     max_depth=4,
-    #     min_child_weight=2,
-    #     # gamma=1,
-    #     gamma=0.9,
-    #     subsample=0.8,
-    #     colsample_bytree=0.8,
-    #     objective='binary:logistic',
-    #     nthread=-1,
-    #     scale_pos_weight=1).fit(x_train, y_train)
-    #
-    # predictions = gbm.predict(x_test)
-    #
+    rf_oof_train, rf_oof_test = get_oof(rf, x_train, y_train, test)
+    ada_oof_train, ada_oof_test = get_oof(ada, x_train, y_train, test)
+    et_oof_train, et_oof_test = get_oof(et, x_train, y_train, test)
+    gb_oof_train, gb_oof_test = get_oof(gb, x_train, y_train, test)
+    svc_oof_train, svc_oof_test = get_oof(svc, x_train, y_train, test)
 
-    sub = 'submission/ada.csv'
+    x_train = np.concatenate((et_oof_train, rf_oof_train, ada_oof_train, gb_oof_train, svc_oof_train), axis=1)
+    x_test = np.concatenate((et_oof_test, rf_oof_test, ada_oof_test, svc_oof_test), axis=1)
+
+    # TODO save oof test and train in csv
+    # TODO 1) add xgboost to first level 2) predictions corrplot (влияет - не влияет?) 3) cv+gridsearch tuning level 2
+
+    gbm = XGBClassifier(
+        # learning_rate = 0.02,
+        n_estimators=2000,
+        max_depth=4,
+        min_child_weight=2,
+        # gamma=1,
+        gamma=0.9,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        objective='binary:logistic',
+        nthread=-1,
+        scale_pos_weight=1).fit(x_train, y_train)
+
+    predictions = gbm.predict(x_test)
+
+
+    sub = 'submission/sv.csv'
     pd.DataFrame({'PassengerId': pass_id,
                   'Survived': predictions}).to_csv(sub, index=False)
-
-# TODO 0) tune 1-level clf
-# TODO 1) add xgboost to first level 2) predictions corrplot (влияет - не влияет?) 3) cv+gridsearch tuning level 2
-
-
 
     # n_iter = 15
     # pred = np.zeros([test.shape[0], n_iter])
