@@ -59,3 +59,36 @@ def corrplot(df):
     sns.plt.show()
 
 
+def hist_compare(train, test, title, xlabel, bins):
+    """
+    show normalized histograms for train and test parameter
+    :return: show plot, mean/std/range statistics
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    pal = sns.color_palette()
+    plt.figure(figsize=(15, 10))
+    plt.hist(train, bins=bins, range=[0, bins], color=pal[2], normed=True, label='train')
+    plt.hist(test, bins=bins, range=[0, bins], color=pal[1], normed=True, alpha=0.5, label='test')
+    plt.title(title, fontsize=15)
+    plt.legend()
+    plt.xlabel(xlabel, fontsize=15)
+    plt.ylabel('Probability', fontsize=15)
+    plt.show()
+    print('mean-train {:.2f} std-train {:.2f} mean-test {:.2f} std-test {:.2f} max-train {:.2f} max-test {:.2f}'.format(
+        train.mean(),train.std(), test.mean(), test.std(), train.max(), test.max()))
+
+
+def word_cloud(df):
+    """
+    simple word cloud
+    :param df: pandas Series
+    :return: show plot
+    """
+    from wordcloud import WordCloud
+    import matplotlib.pyplot as plt
+    cloud = WordCloud(width=1440, height=1080).generate(" ".join(df.astype(str)))
+    plt.figure(figsize=(20, 15))
+    plt.imshow(cloud)
+    plt.axis('off')
+    plt.show()
