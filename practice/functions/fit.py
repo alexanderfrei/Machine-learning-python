@@ -96,3 +96,20 @@ def get_oof(clf, x_train, y_train, x_test, n_splits=5):
     oof_test[:] = oof_test_skf.mean(axis=0)
     print("_ OOF learned _")
     return oof_train.reshape(-1, 1), oof_test.reshape(-1, 1)
+
+
+def fit_itera(clf, params, x_train, y_train, test, n_iter):
+    """
+    majority vote for classification
+    :param clf: classifier
+    :param n_iter: number of fit/predict iterations
+    :return: vector of consensus prediction
+    """
+    import numpy as np
+    pred = np.zeros([test.shape[0], n_iter])
+    for i in range(n_iter):
+        rf = clf(**params, random_state=None)
+        rf.fit(x_train, y_train)
+        print("%.4f" % rf.oob_score_)
+        pred[:, i] = rf.predict(test)
+    return pred.mean(axis=1).round().astype(int)
