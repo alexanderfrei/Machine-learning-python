@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # svc = SVC(**svc_params)
     #
     # rf_oof_train, rf_oof_test = get_oof(rf, x_train, y_train, test)
-    # ada_oof_train, ada_oof_test = get_oof(ada, x_train, y_train, test)
+    # ada_oof_train, ada_oof_test = et_oof(ada, x_train, y_train, test)
     # et_oof_train, et_oof_test = get_oof(et, x_train, y_train, test)
     # gb_oof_train, gb_oof_test = get_oof(gb, x_train, y_train, test)
     # svc_oof_train, svc_oof_test = get_oof(svc, x_train, y_train, test)

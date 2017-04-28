@@ -41,7 +41,7 @@ if __name__ == "__main__":
                              n_estimators=1000,
                              subsample=0.8,
                              colsample_bytree=0.9)
-    xgb_fit(xbm_best, train.iloc[:, 1:], train.iloc[:, 0])
+    # xgb_fit(xbm_best, train.iloc[:, 1:], train.iloc[:, 0])
 
     # param_grid = {'subsample': np.linspace(0.75, 0.85, 3)}
     # xbm_best = grid_search(xbm_best, param_grid, train.iloc[:, 1:], train.iloc[:, 0])
@@ -49,5 +49,6 @@ if __name__ == "__main__":
     # draw_learning_curve(xbm_best, train.iloc[:, 1:], train.iloc[:, 0], cv=5, scoring='roc_auc')
 
     sub = 'submission/xgb_best.csv'
-    save_submission(sub, test, xbm_best, 'Survived', pass_id)
+    # save_submission(sub, test, xbm_best, 'Survived', pass_id)
 
+    print(train.head())
