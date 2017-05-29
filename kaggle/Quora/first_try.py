@@ -1,11 +1,8 @@
-from practice.functions.visual import *
 import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
-import os
-import gc
-import matplotlib.pyplot as plt
+import numpy as np  # linear algebra
+import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 import seaborn as sns
-from sklearn.metrics import log_loss
+
 pal = sns.color_palette()
 
 train = pd.read_csv('data/train.csv')

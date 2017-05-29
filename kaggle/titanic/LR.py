@@ -1,5 +1,6 @@
 import os
-from practice.kaggle.titanic.FE import *
+
+from kaggle.titanic.FE import *
 
 sub = 'submission/lr6.csv'
 

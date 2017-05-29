@@ -72,7 +72,7 @@ print(arr)
 my_data = np.genfromtxt('file.csv', delimiter=',', names=True)
 print(my_data.dtype.names, my_data)
 
-# 47 What is the equivalent of enumerate for numpy arrays?
+# 47 What is the equivalent of enumerate for pandas_numpy arrays?
 arr = np.arange(9).reshape(3,3)
 for index, value in np.ndenumerate(arr):
     print(index, value)

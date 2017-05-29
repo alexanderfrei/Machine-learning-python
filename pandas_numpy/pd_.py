@@ -21,7 +21,7 @@ train.Survived.value_counts(normalize=True)
 # group by
 train['Survived'].groupby(train['Pclass']).mean()
 
-# aggregate functions
+# aggregate wrappers
 df.Survived.groupby(df.Pclass).agg(['mean','count'])
 
 # apply
@@ -47,3 +47,6 @@ df.sort_values(by=('Age'))
 
 # change columns name
 df.columns = [x.lower() for x in df.columns]
+
+
+

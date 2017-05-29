@@ -4,11 +4,8 @@ if __name__ == "__main__":
     ############################################################################################################
 
     import os
-    from practice.kaggle.titanic.FE import *
-    from practice.functions.preprocessing import *
-    from practice.functions.fit import *
-    from practice.functions.visual import *
-    import matplotlib.pyplot as plt
+    from kaggle.titanic.FE import *
+    from wrappers.preprocessing import *
     from xgboost import XGBClassifier
 
     pd.set_option('display.width', 1500)

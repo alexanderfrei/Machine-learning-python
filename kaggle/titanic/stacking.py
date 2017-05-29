@@ -3,22 +3,9 @@ if __name__ == "__main__":
 
     ############################################################################################################
 
-    import pandas as pd
-
     import os
-    from practice.kaggle.titanic.FE import *
-    from practice.functions.preprocessing import *
-    from practice.functions.fit import *
-    from practice.functions.visual import *
-    import matplotlib.pyplot as plt
-    from xgboost import XGBClassifier
-
-    from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier, \
-        ExtraTreesClassifier
-    from sklearn.tree import DecisionTreeClassifier
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.naive_bayes import GaussianNB
-    from sklearn.svm import SVC
+    from kaggle.titanic.FE import *
+    from wrappers.preprocessing import *
 
     pd.set_option('display.width', 200)
 

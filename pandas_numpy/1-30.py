@@ -9,7 +9,7 @@ print(np.__version__)
 zr = np.zeros(10)
 print(zr)
 
-# 4. How to get the documentation of the numpy add function from the command line?
+# 4. How to get the documentation of the pandas_numpy add function from the command line?
 # np.info(np.add)
 
 # 5. Create a null vector of size 10 but the fifth value which is 1
