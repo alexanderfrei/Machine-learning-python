@@ -1,3 +1,5 @@
+# TODO сделать нормальные описания функций
+
 """
 lucky ticket
 задача о счастливом билете
@@ -5,10 +7,12 @@ lucky ticket
 
 import timeit
 
+
 def wrapper(func, *args, **kwargs):
     def wrapped():
         return func(*args, **kwargs)
     return wrapped
+
 
 def happy_tickets(num):
     """
@@ -21,7 +25,6 @@ def happy_tickets(num):
         array = [sum(array[x::-1]) if x < 10
                  else sum(array[x:x-10:-1])
                  for x in range(len(array)) ]
-        print(array)
     return sum([x**2 for x in array])
 
 
@@ -43,7 +46,7 @@ def happy_tickets_2(num):
     return eq
 
 wrapped = wrapper(happy_tickets,6)
-print("Reccurent: %fs" % timeit.timeit(wrapped, number=10))
+print("Reccurent: %fs" % timeit.timeit(wrapped, number=6))
 
-# wrapped = wrapper(happy_tickets_2,6)
-# print("Brute force: %fs" % timeit.timeit(wrapped, number=10))
+wrapped = wrapper(happy_tickets_2,6)
+print("Brute force: %fs" % timeit.timeit(wrapped, number=6))

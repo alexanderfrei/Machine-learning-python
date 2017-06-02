@@ -1,3 +1,5 @@
+# TODO descriptions
+
 my_data=[
     ['slashdot','USA','yes',18,'None'],
     ['google','France','yes',23,'Premium'],

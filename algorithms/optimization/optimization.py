@@ -1,3 +1,5 @@
+# TODO check and split
+
 # 3. Optimization
 import math
 import random

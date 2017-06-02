@@ -1,3 +1,5 @@
+# TODO check
+
 from math import sqrt
 import numpy as np
 import pandas as pd
@@ -64,6 +66,7 @@ def hcluster(rows,distance=pearson):
 
     return clust[0]
 
+
 def dendro(clust, labels=None, n=0):
     for i in range(n):
         print(' ', end='')
@@ -78,6 +81,7 @@ def dendro(clust, labels=None, n=0):
 
 
 if __name__ == "__main__":
+
     data = pd.read_csv('rss_word_count.csv', header=0, delimiter=',')
     rownames = list(data.loc[:, 'blog'])
     colnames = data.iloc[0, 1:]
@@ -85,8 +89,6 @@ if __name__ == "__main__":
 
     hclust = hcluster(data)
     dendro(hclust, labels=rownames)
-
-    import numpy as np
 
     X = np.array(data)
     from matplotlib import pyplot as plt

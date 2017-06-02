@@ -1,3 +1,6 @@
+# TODO check
+
+
 from math import sqrt
 import random
 from h_cluster import pearson as pearson

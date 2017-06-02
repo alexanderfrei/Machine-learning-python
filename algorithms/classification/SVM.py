@@ -1,3 +1,5 @@
+# TODO check + descriptions
+
 import math
 class match_row:
     def __init__(self, row, allnum=False):
