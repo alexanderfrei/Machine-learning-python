@@ -48,5 +48,3 @@ df.sort_values(by=('Age'))
 # change columns name
 df.columns = [x.lower() for x in df.columns]
 
-
-

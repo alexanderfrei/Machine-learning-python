@@ -1,22 +1,22 @@
+# TODO: check and document functions
+
 import pandas as pd
 import numpy as np
 
 
+def pd_to_np(df):
+    """ pandas DF to numpy ARRAY
+    :param df: pandas dataframe
+    :return: numpy array
+    """
+    arr_ip = [tuple(i) for i in df.as_matrix()]
+    dt = np.dtype([(str(i), j) for i,j in zip(df.dtypes.index, df.dtypes)])
+    arr = np.array(arr_ip, dtype=dt)
+    return arr
+
+
 def recode(df, column, bins):
     pd.get_dummies(pd.cut(df[column],bins), prefix=column)
-
-
-def pd_to_np(df):
-    """ 
-    pandas DF to pandas_numpy ARRAY
-    :param df: pandas dataframe
-    :return: pandas_numpy array
-    """
-
-    arr_ip = [tuple(i) for i in df.as_matrix()]
-    dtyp = np.dtype(list(zip(df.dtypes.index, df.dtypes)))
-    arr = np.array(arr_ip, dtype=dtyp)
-    return arr
 
 
 def dummies(train, test, columns):
@@ -39,4 +39,3 @@ def cross_freq(arr):
             ind = np.where(np.logical_and(~np.isnan(arr[..., j]), ~np.isnan(arr[..., i])))
             f[j, i], f[i, j] = ind[0].shape[0], ind[0].shape[0]
     return f
-

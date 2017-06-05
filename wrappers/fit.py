@@ -1,4 +1,6 @@
 
+#  TODO: check all, try 2 way of import (inside and outside of function)
+
 def xgb_fit(alg, X, y, score='auc', cv=5, early_stopping=50, show_feat=False):
     """
     :param alg: Xgboost binary classifier
