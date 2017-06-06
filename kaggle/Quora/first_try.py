@@ -220,3 +220,4 @@ print('   TFIDF AUC:', roc_auc_score(df_train['is_duplicate'], tfidf_train_word_
 # sub['test_id'] = df_test['test_id']
 # sub['is_duplicate'] = p_test
 # sub.to_csv('simple_xgb.csv', index=False)
+
