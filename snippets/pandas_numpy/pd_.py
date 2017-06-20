@@ -48,3 +48,9 @@ df.sort_values(by=('Age'))
 # change columns name
 df.columns = [x.lower() for x in df.columns]
 
+# factorize with labels as indexes - pd.factorize
+df_numeric = df.select_dtypes(exclude=['object'])  # get numeric types
+df_obj = df.select_dtypes(include=['object']).copy()  # get non-numeric types
+for c in df_obj:
+    df_obj[c] = pd.factorize(df_obj[c])[0]  # [0] mean save only values, if index not necessary
+df_values = pd.concat([df_numeric, df_obj], axis=1)
