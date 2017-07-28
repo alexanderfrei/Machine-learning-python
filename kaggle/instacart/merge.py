@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import pandas as pd
 import pickle
@@ -5,14 +6,15 @@ import lightgbm as lgb
 import os
 import time
 
-# DATASET_PATH = 'C:/datasets/instacart/'
-DATASET_PATH = 'D:/datasets/instacart/input'
+DATASET_PATH = 'C:/datasets/instacart/input'
+# DATASET_PATH = 'D:/datasets/instacart/input'
 
 
 def run(text):
     def decor(func):
         def wrapper(*args, **kwargs):
-            print("{}.. ".format(func.__name__), end="")
+            sys.stdout.write("{}.. ".format(func.__name__))
+            sys.stdout.flush()
             t1 = time.time()
             res = func(*args, **kwargs)
             t2 = time.time()
@@ -20,6 +22,11 @@ def run(text):
             return res
         return wrapper
     return decor
+
+
+@run("some text")
+def sleep10():
+    time.sleep(10)
 
 
 @run("load data")
@@ -186,10 +193,10 @@ def features(selected_orders, labels_given=False):
     print('user_X_product related features')
     df['z'] = df.user_id * 50000 + df.product_id
     df.drop(['user_id'], axis=1, inplace=True)
-    df['UP_orders'] = df.z.map(userXproduct.nb_orders)
+    df['UP_orders'] = df.z.map(user_x_product.nb_orders)
     df['UP_orders_ratio'] = (df.UP_orders / df.user_total_orders).astype(np.float32)
-    df['UP_last_order_id'] = df.z.map(userXproduct.last_order_id)
-    df['UP_average_pos_in_cart'] = (df.z.map(userXproduct.sum_pos_in_cart) / df.UP_orders).astype(np.float32)
+    df['UP_last_order_id'] = df.z.map(user_x_product.last_order_id)
+    df['UP_average_pos_in_cart'] = (df.z.map(user_x_product.sum_pos_in_cart) / df.UP_orders).astype(np.float32)
     df['UP_reorder_rate'] = (df.UP_orders / df.user_total_orders).astype(np.float32)
     df['UP_orders_since_last'] = df.user_total_orders - df.UP_last_order_id.map(orders.order_number)
     df['UP_delta_hour_vs_last'] = abs(df.order_hour_of_day - df.UP_last_order_id.map(orders.order_hour_of_day)).map(
@@ -203,23 +210,112 @@ def features(selected_orders, labels_given=False):
     return df, labels
 
 
+def pickle_it(obj, file_name):
+    with open(file_name, 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+
+def depickle_it(file_name):
+    with open(file_name, 'rb') as f:
+        data = pickle.load(f)
+    return data
+
+
 if __name__ == "__main__":
 
     os.chdir(DATASET_PATH)
 
-    priors, train, orders, products = load()
-    products = feat_products(products)
-    priors = join_orders_to_priors(orders, priors)
-    users = user_features()
-    user_x_product = feat_user_product()
-    test_orders, train_orders = split_orders()
+    # prepare data
 
-    df_train, labels = features(train_orders, labels_given=True)
+    # priors, train, orders, products = load()
+    # products = feat_products(products)
+    # priors = join_orders_to_priors(orders, priors)
+    # users = user_features()
+    # user_x_product = feat_user_product()
+    # test_orders, train_orders = split_orders()
+    # df_train, labels = features(train_orders, labels_given=True)
 
-    with open('labels.pickle') as f:
-        pickle.dump(labels, f, pickle.HIGHEST_PROTOCOL)
-    with open('merged_train.pickle') as f:
-        pickle.dump(df_train, f, pickle.HIGHEST_PROTOCOL)
+    # dump
 
-    df_train.to_csv('merged_train.csv', index=False)
+    # pickle_it(train_orders, 'train_orders.pickle')
+    # pickle_it(test_orders, 'test_orders.pickle')
+    # pickle_it(user_x_product, 'user_x_product.pickle')
+    # pickle_it(users, 'users.pickle')
+    # pickle_it(products, 'products.pickle')
+    # pickle_it(train, 'train.pickle')
+    # pickle_it(labels, 'labels.pickle')
+    # pickle_it(df_train, 'df_train.pickle')
 
+    # load
+
+    # train = depickle_it('train.pickle')
+    # train_orders = depickle_it('train_orders.pickle')
+    user_x_product = depickle_it('user_x_product.pickle')
+    users = depickle_it('users.pickle')
+    products = depickle_it('products.pickle')
+
+    df_train = depickle_it('df_train.pickle')
+    test_orders = depickle_it('test_orders.pickle')
+    labels = depickle_it('labels.pickle')
+
+    # train lightgbm
+
+    f_to_use = ['user_total_orders', 'user_total_items', 'total_distinct_items',
+                'user_average_days_between_orders', 'user_average_basket',
+                'order_hour_of_day', 'days_since_prior_order', 'days_since_ratio',
+                'aisle_id', 'department_id', 'product_orders', 'product_reorders',
+                'product_reorder_rate', 'UP_orders', 'UP_orders_ratio',
+                'UP_average_pos_in_cart', 'UP_reorder_rate', 'UP_orders_since_last',
+                'UP_delta_hour_vs_last']  # 'dow', 'UP_same_dow_as_last_order'
+
+    d_train = lgb.Dataset(df_train[f_to_use],
+                          label=labels,
+                          categorical_feature=['aisle_id', 'department_id'])  # , 'order_hour_of_day', 'dow'
+    del df_train
+
+    params = {
+        'task': 'train',
+        'boosting_type': 'gbdt',
+        'objective': 'binary',
+        'metric': {'binary_logloss'},
+        'num_leaves': 96,
+        'max_depth': 10,
+        'feature_fraction': 0.9,
+        'bagging_fraction': 0.95,
+        'bagging_freq': 5
+    }
+    ROUNDS = 100
+
+    bst = lgb.train(params, d_train, ROUNDS)
+    lgb.plot_importance(bst, figsize=(9,20))
+
+    del d_train
+
+    # test
+
+    df_test, _ = features(test_orders)
+
+    print('light GBM predict')
+    preds = bst.predict(df_test[f_to_use])
+
+    df_test['pred'] = preds
+
+    TRESHOLD = 0.22  # guess, should be tuned with crossval on a subset of train data
+
+    d = dict()
+    for row in df_test.itertuples():
+        if row.pred > TRESHOLD:
+            try:
+                d[row.order_id] += ' ' + str(row.product_id)
+            except:
+                d[row.order_id] = str(row.product_id)
+
+    for order in test_orders.order_id:
+        if order not in d:
+            d[order] = 'None'
+
+    sub = pd.DataFrame.from_dict(d, orient='index')
+
+    sub.reset_index(inplace=True)
+    sub.columns = ['order_id', 'products']
+    sub.to_csv('sub.csv', index=False)
