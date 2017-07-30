@@ -1,3 +1,8 @@
+# TODO check * 50000 int64 user x product
+# TODO check NAN user x product
+# TODO test treshold
+# TODO add word2vec segmentation for products
+
 import sys
 import numpy as np
 import pandas as pd
@@ -6,8 +11,8 @@ import lightgbm as lgb
 import os
 import time
 
-DATASET_PATH = 'C:/datasets/instacart/input'
-# DATASET_PATH = 'D:/datasets/instacart/input'
+# DATASET_PATH = 'C:/datasets/instacart/input'
+DATASET_PATH = 'D:/datasets/instacart/input'
 
 
 def run(text):
@@ -227,95 +232,95 @@ if __name__ == "__main__":
 
     # prepare data
 
-    # priors, train, orders, products = load()
-    # products = feat_products(products)
-    # priors = join_orders_to_priors(orders, priors)
-    # users = user_features()
-    # user_x_product = feat_user_product()
-    # test_orders, train_orders = split_orders()
-    # df_train, labels = features(train_orders, labels_given=True)
+    priors, train, orders, products = load()
+    products = feat_products(products)
+    priors = join_orders_to_priors(orders, priors)
+    users = user_features()
+    user_x_product = feat_user_product()
+    test_orders, train_orders = split_orders()
+    df_train, labels = features(train_orders, labels_given=True)
 
     # dump
 
-    # pickle_it(train_orders, 'train_orders.pickle')
-    # pickle_it(test_orders, 'test_orders.pickle')
-    # pickle_it(user_x_product, 'user_x_product.pickle')
-    # pickle_it(users, 'users.pickle')
-    # pickle_it(products, 'products.pickle')
-    # pickle_it(train, 'train.pickle')
-    # pickle_it(labels, 'labels.pickle')
-    # pickle_it(df_train, 'df_train.pickle')
+    pickle_it(train_orders, 'train_orders.pickle')
+    pickle_it(test_orders, 'test_orders.pickle')
+    pickle_it(user_x_product, 'user_x_product.pickle')
+    pickle_it(users, 'users.pickle')
+    pickle_it(products, 'products.pickle')
+    pickle_it(train, 'train.pickle')
+    pickle_it(labels, 'labels.pickle')
+    pickle_it(df_train, 'df_train.pickle')
 
     # load
 
     # train = depickle_it('train.pickle')
     # train_orders = depickle_it('train_orders.pickle')
-    user_x_product = depickle_it('user_x_product.pickle')
-    users = depickle_it('users.pickle')
-    products = depickle_it('products.pickle')
-
-    df_train = depickle_it('df_train.pickle')
-    test_orders = depickle_it('test_orders.pickle')
-    labels = depickle_it('labels.pickle')
-
-    # train lightgbm
-
-    f_to_use = ['user_total_orders', 'user_total_items', 'total_distinct_items',
-                'user_average_days_between_orders', 'user_average_basket',
-                'order_hour_of_day', 'days_since_prior_order', 'days_since_ratio',
-                'aisle_id', 'department_id', 'product_orders', 'product_reorders',
-                'product_reorder_rate', 'UP_orders', 'UP_orders_ratio',
-                'UP_average_pos_in_cart', 'UP_reorder_rate', 'UP_orders_since_last',
-                'UP_delta_hour_vs_last']  # 'dow', 'UP_same_dow_as_last_order'
-
-    d_train = lgb.Dataset(df_train[f_to_use],
-                          label=labels,
-                          categorical_feature=['aisle_id', 'department_id'])  # , 'order_hour_of_day', 'dow'
-    del df_train
-
-    params = {
-        'task': 'train',
-        'boosting_type': 'gbdt',
-        'objective': 'binary',
-        'metric': {'binary_logloss'},
-        'num_leaves': 96,
-        'max_depth': 10,
-        'feature_fraction': 0.9,
-        'bagging_fraction': 0.95,
-        'bagging_freq': 5
-    }
-    ROUNDS = 100
-
-    bst = lgb.train(params, d_train, ROUNDS)
-    lgb.plot_importance(bst, figsize=(9,20))
-
-    del d_train
-
-    # test
-
-    df_test, _ = features(test_orders)
-
-    print('light GBM predict')
-    preds = bst.predict(df_test[f_to_use])
-
-    df_test['pred'] = preds
-
-    TRESHOLD = 0.22  # guess, should be tuned with crossval on a subset of train data
-
-    d = dict()
-    for row in df_test.itertuples():
-        if row.pred > TRESHOLD:
-            try:
-                d[row.order_id] += ' ' + str(row.product_id)
-            except:
-                d[row.order_id] = str(row.product_id)
-
-    for order in test_orders.order_id:
-        if order not in d:
-            d[order] = 'None'
-
-    sub = pd.DataFrame.from_dict(d, orient='index')
-
-    sub.reset_index(inplace=True)
-    sub.columns = ['order_id', 'products']
-    sub.to_csv('sub.csv', index=False)
+    # user_x_product = depickle_it('user_x_product.pickle')
+    # users = depickle_it('users.pickle')
+    # products = depickle_it('products.pickle')
+    #
+    # df_train = depickle_it('df_train.pickle')
+    # test_orders = depickle_it('test_orders.pickle')
+    # labels = depickle_it('labels.pickle')
+    #
+    # # train lightgbm
+    #
+    # f_to_use = ['user_total_orders', 'user_total_items', 'total_distinct_items',
+    #             'user_average_days_between_orders', 'user_average_basket',
+    #             'order_hour_of_day', 'days_since_prior_order', 'days_since_ratio',
+    #             'aisle_id', 'department_id', 'product_orders', 'product_reorders',
+    #             'product_reorder_rate', 'UP_orders', 'UP_orders_ratio',
+    #             'UP_average_pos_in_cart', 'UP_reorder_rate', 'UP_orders_since_last',
+    #             'UP_delta_hour_vs_last']  # 'dow', 'UP_same_dow_as_last_order'
+    #
+    # d_train = lgb.Dataset(df_train[f_to_use],
+    #                       label=labels,
+    #                       categorical_feature=['aisle_id', 'department_id'])  # , 'order_hour_of_day', 'dow'
+    # del df_train
+    #
+    # params = {
+    #     'task': 'train',
+    #     'boosting_type': 'gbdt',
+    #     'objective': 'binary',
+    #     'metric': {'binary_logloss'},
+    #     'num_leaves': 96,
+    #     'max_depth': 10,
+    #     'feature_fraction': 0.9,
+    #     'bagging_fraction': 0.95,
+    #     'bagging_freq': 5
+    # }
+    # ROUNDS = 100
+    #
+    # bst = lgb.train(params, d_train, ROUNDS)
+    # lgb.plot_importance(bst, figsize=(9,20))
+    #
+    # del d_train
+    #
+    # # test
+    #
+    # df_test, _ = features(test_orders)
+    #
+    # print('light GBM predict')
+    # preds = bst.predict(df_test[f_to_use])
+    #
+    # df_test['pred'] = preds
+    #
+    # TRESHOLD = 0.22  # guess, should be tuned with crossval on a subset of train data
+    #
+    # d = dict()
+    # for row in df_test.itertuples():
+    #     if row.pred > TRESHOLD:
+    #         try:
+    #             d[row.order_id] += ' ' + str(row.product_id)
+    #         except:
+    #             d[row.order_id] = str(row.product_id)
+    #
+    # for order in test_orders.order_id:
+    #     if order not in d:
+    #         d[order] = 'None'
+    #
+    # sub = pd.DataFrame.from_dict(d, orient='index')
+    #
+    # sub.reset_index(inplace=True)
+    # sub.columns = ['order_id', 'products']
+    # sub.to_csv('sub.csv', index=False)
