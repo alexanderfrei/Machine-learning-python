@@ -63,7 +63,7 @@ def count_similar(df, dt, n_jobs):
 
 if __name__ == "__main__":
 
-    M, N, dt = 50, 10 ** 6, 0.3
+    M, N, dt = 100, 10 ** 6, 0.3
     make_data(M, N)
     df = pd.read_csv('incidents.csv')
 
