@@ -6,6 +6,7 @@ import numpy as np
 
 
 def make_data(M, N):
+
     df = pd.DataFrame({'feature1': np.random.randint(M, size=(N,)),
                        'feature2': np.random.randint(M, size=(N,)),
                        'time': np.random.rand(N)
