@@ -5,7 +5,7 @@ if __name__ == "__main__":
 
     import os
     from kaggle.titanic.FE import *
-    from wrappers.preprocessing import *
+    from ml_tools.preprocessing import *
     from xgboost import XGBClassifier
 
     pd.set_option('display.width', 1500)

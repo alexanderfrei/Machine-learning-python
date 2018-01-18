@@ -1,7 +1,7 @@
 import os
 
 from kaggle.titanic.FE import *
-from wrappers.preprocessing import *
+from ml_tools.preprocessing import *
 
 train = pd.read_csv(os.path.join('data', 'train.csv'))
 test = pd.read_csv(os.path.join('data', 'test.csv'))

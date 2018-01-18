@@ -21,7 +21,7 @@ train.Survived.value_counts(normalize=True)
 # group by
 train['Survived'].groupby(train['Pclass']).mean()
 
-# aggregate wrappers
+# aggregate ml_tools
 df.Survived.groupby(df.Pclass).agg(['mean','count'])
 
 # apply
