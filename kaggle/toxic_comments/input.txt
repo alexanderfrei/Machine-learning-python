@@ -1,0 +1,3 @@
+https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/data
+https://www.kaggle.com/yekenot/fasttext-crawl-300d-2m
+https://www.kaggle.com/takuok/glove840b300dtxt
