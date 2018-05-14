@@ -11,6 +11,17 @@ import os
 from collections import deque
 
 
+def lgb_fulltrain(lgb_params, xgtrain, num_boost_round, lr_decay, nl_random, md_random, verbose_eval=10):
+    bst = lgb.train(lgb_params, 
+                     xgtrain, 
+                     num_boost_round=num_boost_round,
+                     verbose_eval=verbose_eval, 
+                     callbacks= [lgb.reset_parameter(learning_rate = lr_decay, 
+                                                     num_leaves = nl_random,
+                                                     max_depth = md_random)]
+                     )
+    return bst
+
 def lgb_train(lgb_params, xgtrain, xgvalid, num_boost_round, early_stopping_rounds, lr_decay, nl_random, md_random, verbose_eval=10):
     evals_results = {}
     bst = lgb.train(lgb_params, 
@@ -27,56 +38,48 @@ def lgb_train(lgb_params, xgtrain, xgvalid, num_boost_round, early_stopping_roun
                      feval=None)
     return bst, evals_results
 
+np.random.seed(42)
 
-PREDICTORS = ['app', 'channel', 'os', 'device', 'hour', 'nextClick'] + ['X'+str(i) for i in [0,1,2,3,4,5,7,8,9,11,13,14,15]] + ['roll_ip_120']
-# PREDICTORS = ['app', 'channel', 'os', 'device', 'hour', 'nextClick'] + ['X0','X4','X9','X8','roll_ip_120','X11','X7','X14']
-# to_check = ['X'+str(i) for i in [1,2,3,4,5,7,8,9,11,13,14,15]] + rolls
+early_stopping_rounds=30
+num_boost_round=330
+
+PREDICTORS = ['app', 'channel', 'os', 'device', 'hour', 'nextClick'] + ['X'+str(i) for i in [0,1,2,3,4,5,7,8,9,11,13,14,15]] + \
+             ['fac1_1', 'fac1_2', 'fac1_3', 'fac2_1', 'fac2_2', 'fac2_3']
 categorical = ['app', 'device', 'os', 'channel', 'hour']
 
- # + ['hash'+str(i) for i in range(1, 7)]
-# lr_decay = [0.3] * 50 + [0.2] * 150 + [0.15] * 300 + [0.1] * 2500
-lr_decay = [0.3] * 100 + [0.2] * 100 + [0.1] * 100
-np.random.seed(3333)
-# nl_random = np.random.choice([4,5,6,7,8,9,10], 3000).tolist()
-nl_random = np.random.choice([4,5,6,7,8,9], 300).tolist()
-md_random = [3 if i<=7 else 4 for i in nl_random]
+lr_decay = [0.1] * num_boost_round
+nl_random = [31] * num_boost_round
+md_random = [6] * num_boost_round
 
-# nl_random = [7] * 3000
-# md_random = [3] * 3000
+# lr_decay = [0.25] * 100 + [0.2] * 100 + [0.15] * 100 + [0.1] * 700
+# nl_random = np.random.choice([7, 15, 31], 1000).tolist()
+# md_random = [7] * 1000
+# for s,i in enumerate(nl_random):
+#     np.random.seed(s+1)
+#     md = int(np.log2(i+1))
+#     md_random.append(np.random.choice([md+1, md+2, md+3], 1))
+# np.random.seed(42)
 
 dump = 0
 from_dump = 1
 dump_name = ''
-
+full_train = 1
 predict = 1
-feature_eliminate = 0
 DEBUG = 0
+feature_eliminate = 0
 
-FILENO = 11
+FILENO = 12
 
-# big
-NCHUNK = 120 * 10**6
-OFFSET = 130 * 10**6
-val_size= 10 * 10**6
+NCHUNK = 184903890
+OFFSET = 184903890
+val_size= 50000000
 
-# NCHUNK = 184903890
-# OFFSET = 184903890
-# val_size= 15000000
+# NCHUNK = 35000000
+# OFFSET = 78000000
+# val_size= 5000000
 
-# # local val
-# NCHUNK = 32000000
-# OFFSET = 75000000
-# val_size= 2500000
-
-# elim
-# NCHUNK = 11000000
-# OFFSET = 150000000
-# val_size= 1000000
-
-VAL_RUN = False
 MISSING32 = 999999999
 MISSING8 = 255
-PUBLIC_CUTOFF = 4032690
 
 inpath = '../input/'
 outpath = '../sub'
@@ -241,7 +244,7 @@ if not from_dump:
     print('Extracting new features...')
     train_df['hour'] = pd.to_datetime(train_df.click_time).dt.hour.astype('uint8')
     train_df['day'] = pd.to_datetime(train_df.click_time).dt.day.astype('uint8')
-    train_df['inttime'] = train_df.click_time.astype(np.int64) // 10**9
+    # train_df['inttime'] = train_df.click_time.astype(np.int64) // 10**9
 
     print('Extracting aggregation features...')
     if 'X0' in PREDICTORS: train_df = do_countuniq( train_df, ['ip'], 'channel', 'X0', 'uint8'); gc.collect()
@@ -263,14 +266,7 @@ if not from_dump:
 
     # rolling counts
     # train_df = to_hash(train_df, ['app', 'device', 'os', 'ip'], 'roll1')
-    # train_df = to_hash(train_df, ['app', 'os', 'ip'], 'roll4')
-    # train_df = to_hash(train_df, ['day', 'hour', 'ip'], 'roll6')
-
     # train_df = rolling_counts(train_df, 'roll1', 120)
-    # train_df = rolling_counts(train_df, 'ip', 60)
-    train_df = rolling_counts(train_df, 'ip', 120)
-    # train_df = rolling_counts(train_df, 'roll4', 120)
-    # train_df = rolling_counts(train_df, 'roll6', 120)
 
     print('Doing nextClick...')
 
@@ -284,7 +280,7 @@ if not from_dump:
     train_df.info()
 
     # drop 
-    train_df.drop(['inttime'], 1, inplace=True)
+    # train_df.drop(['inttime'], 1, inplace=True)
 
     test_df = train_df[len_train:]
     val_df = train_df[(len_train-val_size):len_train]
@@ -302,11 +298,28 @@ if not from_dump:
 else:
     print('Load dumps...')
     train_df = pd.read_feather('../dumps/kaggle_train' + dump_name + '.feather').set_index('index')
-    print(train_df.shape)
+
     val_df = pd.read_feather('../dumps/kaggle_val' + dump_name + '.feather').set_index('index')
-    print(val_df.shape)
     # test_df = pd.read_feather('../dumps/kaggle_test' + dump_name + '.feather').set_index('index')
     # print(test_df.shape)
+
+    ntrain, nfull = train_df.shape[0], train_df.shape[0] + val_df.shape[0]    
+
+    # add factors 
+    factor1 = pd.read_feather('../dumps/factor1' + dump_name + '.feather')
+    factor2 = pd.read_feather('../dumps/factor2' + dump_name + '.feather')    
+    factors = pd.concat([factor1, factor2], axis=1)
+    del factor1, factor2
+    gc.collect()
+    train_df = pd.concat([train_df, factors[:ntrain]], axis=1)
+    val_df = pd.concat([val_df, factors[ntrain:nfull]], axis=1)
+    factors_test = factors[nfull:]
+    del factors
+    gc.collect()
+
+    print(train_df.shape)
+    print(val_df.shape)
+
 
 predictors = PREDICTORS
 
@@ -318,66 +331,80 @@ start_time = time.time()
 
 objective='binary' 
 metrics='auc'
-early_stopping_rounds=30
 verbose_eval=True 
-num_boost_round=300
 categorical_features=categorical
 
 lgb_params = {
-    'device': 'gpu',
-    'gpu_platform_id': 0,
-    'gpu_device_id': 0,
-    'gpu_use_dp': False,
+    # 'device': 'gpu',
+    # 'gpu_platform_id': 0,
+    # 'gpu_device_id': 0,
+    # 'gpu_use_dp': False,
     'boosting_type': 'gbdt',
     'objective': objective,
     'metric':metrics,
-    'learning_rate': 0.3,
-    'num_leaves': 7,  # 2^max_depth - 1
-    'max_depth': 3,  # -1 means no limit
-    'min_child_samples': 1000,  # Minimum number of data need in a child(min_data_in_leaf)
+    'learning_rate': 0.1,
+    'num_leaves': 31,  # 2^max_depth - 1
+    'max_depth': 6,  # -1 means no limit
+    'min_child_samples': 200,  # Minimum number of data need in a child(min_data_in_leaf)
     'max_bin': 255,  # Number of bucketed bin for feature values
-    'subsample': 0.55,  # Subsample ratio of the training instance.
+    'subsample': 0.8,  # Subsample ratio of the training instance.
     'subsample_freq': 1,  # frequence of subsample, <=0 means no enable
-    'colsample_bytree': 0.85,  # Subsample ratio of columns when constructing each tree.
-    'min_child_weight': 0.01,  # Minimum sum of instance weight(hessian) needed in a child(leaf)
-    'scale_pos_weight': 200, # because training data is extremely unbalanced 
+    'colsample_bytree': 0.7,  # Subsample ratio of columns when constructing each tree.
+    'min_child_weight': 30,  # Minimum sum of instance weight(hessian) needed in a child(leaf)
+    'scale_pos_weight': 400, # because training data is extremely unbalanced 
     'subsample_for_bin': 200000,  # Number of samples for constructing bin
     'min_split_gain': 0.1,  # lambda_l1, lambda_l2 and min_gain_to_split to regularization
     'reg_alpha': 0,  # L1 regularization term on weights
     'reg_lambda': 0,  # L2 regularization term on weights
     'nthread': cores,
-    'verbose': 0,
+    'verbose': -1,
     'metric':metrics
 }
 
-print('Make xgtrain...')
-y_train = train_df[target].values
-xgtrain = lgb.Dataset(train_df[predictors].values.astype(np.float32), label=y_train,
-                      feature_name=predictors,
-                      categorical_feature=categorical
-                      )
-                      
-if not feature_eliminate: 
-    del train_df
-    gc.collect()
+if not full_train:
+    
+    print('Make xgtrain...')
+    y_train = train_df[target].values
+    xgtrain = lgb.Dataset(train_df[predictors].values.astype(np.float32), label=y_train,
+                          feature_name=predictors,
+                          categorical_feature=categorical
+                          )
+                          
+    if not feature_eliminate: 
+        del train_df
+        gc.collect()
 
 
-print('Make xgval...')
-y_val = val_df[target].values
-xgvalid = lgb.Dataset(val_df[predictors].values, label=y_val,
-                      feature_name=predictors,
-                      categorical_feature=categorical
-                      )
-if not feature_eliminate: 
+    print('Make xgval...')
+    y_val = val_df[target].values
+    xgvalid = lgb.Dataset(val_df[predictors].values, label=y_val,
+                          feature_name=predictors,
+                          categorical_feature=categorical
+                          )
+    if not feature_eliminate: 
+        del val_df
+        gc.collect()
+
+
+    bst, evals_results = lgb_train(lgb_params, xgtrain, xgvalid, num_boost_round, early_stopping_rounds, lr_decay, nl_random, md_random)
+    print("\nModel Report")
+    print("bst.best_iteration: ", bst.best_iteration)
+    print(metrics+":", evals_results['valid'][metrics][bst.best_iteration-1])    
+
+else:
+
+    train_df = pd.concat([train_df, val_df])
+    y_train = train_df[target].values
+
     del val_df
     gc.collect()
 
-
-bst, evals_results = lgb_train(lgb_params, xgtrain, xgvalid, num_boost_round, early_stopping_rounds, lr_decay, nl_random, md_random)
-
-print("\nModel Report")
-print("bst.best_iteration: ", bst.best_iteration)
-print(metrics+":", evals_results['valid'][metrics][bst.best_iteration-1])
+    xgtrain = lgb.Dataset(train_df[predictors].values.astype(np.float32), label=y_train,
+                          feature_name=predictors,
+                          categorical_feature=categorical
+                          )
+                         
+    bst = lgb_fulltrain(lgb_params, xgtrain, num_boost_round, lr_decay, nl_random, md_random)
 
 print('[{}]: model training time'.format(time.time() - start_time))
 with open('../dumps/model'+str(fileno), 'wb') as f: pickle.dump(bst, f)
@@ -385,65 +412,76 @@ with open('../dumps/model'+str(fileno), 'wb') as f: pickle.dump(bst, f)
 if feature_eliminate:
     print("Feature eliminating...")
 
+    if os.path.exists('../dumps/elim_dump.pkl'): 
+        with open('../dumps/elim_dump.pkl', 'rb') as f: 
+            scored = pickle.load(f)
+    else:
+        scored = []      
+    
     to_eliminate = []
-    cur_score = evals_results['valid'][metrics][bst.best_iteration-1]
+    predictors.sort()   
+    best_score = evals_results['valid'][metrics][bst.best_iteration-1]
+    improved = True
 
-    while True:
+    while improved:
 
-        best_elim_score = 0
-        for p in list(set(to_check).difference(to_eliminate)):
+        improved = False
+        for i, p in enumerate(predictors):
+            print('eliminated', [p] + to_eliminate)
             
-            print('eliminate', p)            
+            cur_predictors = predictors[:i] + predictors[i+1:]
+            if p in categorical: 
+                ic = categorical.index(p)
+                cur_cat = categorical[:ic] + categorical[ic+1:]
+            else:
+                cur_cat = categorical
 
-            cur_predictors = list(set(predictors).difference([p] + to_eliminate))
             xgtrain = lgb.Dataset(train_df[cur_predictors].values.astype(np.float32), label=y_train,
                                   feature_name=cur_predictors,
-                                  categorical_feature=categorical
+                                  categorical_feature=cur_cat
                                   )        
 
             xgvalid = lgb.Dataset(val_df[cur_predictors].values, label=y_val,
                                   feature_name=cur_predictors,
-                                  categorical_feature=categorical
+                                  categorical_feature=cur_cat
                                   )        
 
             model, evals_results = lgb_train(lgb_params, xgtrain, xgvalid, num_boost_round, early_stopping_rounds, lr_decay, nl_random, md_random, 0)
             score = evals_results['valid'][metrics][model.best_iteration-1]
 
-            if score > best_elim_score: 
-                best_elim_score = score
-                cur_eliminate = p
+            if score > best_score: 
+                best_score = score 
+                improved = True
+                remove = p
 
-            print('{:.6f}'.format(score))
+            scored.append((cur_predictors, score))
+            with open('../dumps/elim_dump.pkl', 'wb') as f: pickle.dump(scored, f)
 
-        if best_elim_score > cur_score:
-            print(" current score: {:.6f}\n best eliminate score:{:.6f}\n feature to eliminate: {}".format(cur_score, best_elim_score, cur_eliminate))
-            cur_score = best_elim_score
-            to_eliminate.append(cur_eliminate)
-        else:
-            break
+        if improved:
+            to_eliminate.append(p)
+            i = predictors.index(p)
+            predictors = predictors[:i] + predictors[i+1:]
+            if p in categorical: 
+                i = categorical.index(p)
+                categorical = categorical[:i] + categorical[i+1:]
+            print(predictors)
+            print('best score: {:.6f}'.format(score))
 
-    bst_predictors = list(set(predictors).difference(to_eliminate))
-    xgtrain = lgb.Dataset(train_df[bst_predictors].values.astype(np.float32), label=y_train,
-                          feature_name=bst_predictors,
-                          categorical_feature=categorical)        
-    xgvalid = lgb.Dataset(val_df[bst_predictors].values, label=val_df[target].values,
-                          feature_name=bst_predictors,
-                          categorical_feature=categorical) 
-
-    bst, evals_results = lgb_train(lgb_params, xgtrain, xgvalid, num_boost_round, early_stopping_rounds, lr_decay, nl_random, md_random)  
-    score = evals_results['valid'][metrics][bst.best_iteration-1]
-    with open('../dumps/bst_predictors_v'+str(fileno), 'wb') as f: pickle.dump(bst_predictors, f)
-    print('features to remove:', to_eliminate)
-    print('best predictors:', bst_predictors, score)
+    print(predictors)
+    print(categorical)
+    print(best_score)
+    with open('../dumps/best_predictors.pkl', 'wb') as f: pickle.dump(predictors, f)
+    with open('../dumps/best_cat.pkl', 'wb') as f: pickle.dump(categorical, f)
 
 if predict:
 
     test_df = pd.read_feather('../dumps/kaggle_test' + dump_name + '.feather').set_index('index')
+    if from_dump: test_df = pd.concat([test_df, factors_test], axis=1)    
     print(test_df.shape)
 
     print("Predicting...")
     sub = pd.DataFrame()
-    y_pred = bst.predict(test_df[predictors],num_iteration=bst.best_iteration)
+    y_pred = bst.predict(test_df[predictors], num_iteration=bst.best_iteration)
     outsuf = ''
     sub['click_id'] = test_df['click_id'].astype('uint32').values
     sub['is_attributed'] = y_pred
@@ -452,7 +490,7 @@ if predict:
         sub.to_csv('../sub/sub_it%d'%(fileno)+'.csv', index=False, float_format='%.9f')
     print( sub.head(10) )
 
-print('Plot feature importances...')
-ax = lgb.plot_importance(bst, max_num_features=100)
-plt.savefig('FE.jpg')
-plt.show()
+    print('Plot feature importances...')
+    ax = lgb.plot_importance(bst, max_num_features=100)
+    plt.savefig('FE.jpg')
+    plt.show()    
