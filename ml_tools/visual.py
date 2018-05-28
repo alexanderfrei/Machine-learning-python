@@ -1,4 +1,3 @@
-# TODO check and document functions
 
 
 def draw_learning_curve(estimator, X, y, scoring="accuracy", cv=5, lower=0.75, higher=0.95):

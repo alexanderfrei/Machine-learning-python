@@ -1,5 +1,3 @@
-# TODO check
-
 import random
 from h_cluster import pearson as pearson
 import pandas as pd

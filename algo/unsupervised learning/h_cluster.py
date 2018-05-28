@@ -1,5 +1,3 @@
-# TODO check
-
 from math import sqrt
 import numpy as np
 import pandas as pd
@@ -28,7 +26,7 @@ class bicluster:
         self.distance = distance
 
 
-def hcluster(rows,distance=pearson):
+def hcluster(rows, distance=pearson):
     distances = {}
     current_clust_id = -1
     clust = [bicluster(data.iloc[i, :], id=i) for i in range(data.shape[0])]

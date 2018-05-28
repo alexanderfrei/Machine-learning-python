@@ -1,5 +1,3 @@
-# TODO Добавить BFS + DFS
-# TODO переписать в функцию
 
 import pandas as pd
 import math

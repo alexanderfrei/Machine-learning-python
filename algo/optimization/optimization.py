@@ -1,6 +1,5 @@
-# TODO check and split
 
-# 3. Optimization
+# Optimization
 import math
 import random
 import pandas as pd
@@ -63,6 +62,7 @@ def annealing_opt(data, costf, T=10 ** 12, cool=0.995, step=0.05):
         # cool
         T = T * cool
     return weights
+
 
 def genetic_wine_opt(wine, costf, popsize=100, rate=0.05, mutprob=0.5, elite=0.25, maxiter=100):
 

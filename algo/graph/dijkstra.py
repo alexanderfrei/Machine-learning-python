@@ -1,4 +1,3 @@
-# TODO переписать в функцию
 
 import sys
 sys.stdin = "4 8\n1 2 6\n1 3 2\n1 4 10\n2 4 4\n3 1 5\n3 2 3\n3 4 8\n4 2 1\n1 4"
@@ -25,11 +24,11 @@ inf = float('inf')
 
 # initialize
 size = data[0]
-s = data[-1][0] #start vertex
-f = data[-1][2] #finish vertex
+s = data[-1][0] # start vertex
+f = data[-1][2] # end vertex
 w = data[1:len(data)-1]
 for i in range(len(w)):
-    w[i] = w[i].split(' ') #weights
+    w[i] = w[i].split(' ') # weights
 V = []
 for i in w:
     if i[0] not in V:
@@ -38,7 +37,7 @@ for i in w:
         V.append(i[1]) # all vertex
 d = {}
 for v in V:
-    d[v] = inf # массив кратчайшего пути до вершины
+    d[v] = inf
 d[s] = 0
 Q = V # vertex to drop
 q = s # start vertex to check
@@ -58,8 +57,7 @@ if s in V and f in V: # check data
                     if d[to] > d[q] + wg:
                         d[to] = d[q] + wg
 
-        if not cont: # проверка на входящие ребра в финишную вершину
-            break
+        if not cont: break
 
         # Remove no more needed sides
         for i in w:
@@ -67,12 +65,10 @@ if s in V and f in V: # check data
                 w[w.index(i)] = None
         while None in w: w.remove(None)
 
-         # remove vertex
-
+        # remove vertex
         Q.remove(q)
 
         # end with reaching finish vertex
-
         min = -1
         for key,value in d.items():
             if key in Q and (value < min or min == -1):

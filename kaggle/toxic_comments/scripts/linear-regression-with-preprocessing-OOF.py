@@ -229,7 +229,6 @@ def get_indicators_and_clean_comments(df):
     # Get length in words and characters
     df["raw_word_len"] = df["comment_text"].apply(lambda x: len(x.split()))
     df["raw_char_len"] = df["comment_text"].apply(lambda x: len(x))
-    # TODO chars per row
     # Check number of upper case, if you're angry you may write in upper case
     df["nb_upper"] = df["comment_text"].apply(lambda x: count_regexp_occ(r"[A-Z]", x))
     # Number of F words - f..k contains folk, fork,

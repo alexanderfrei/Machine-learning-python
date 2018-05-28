@@ -2335,7 +2335,7 @@ ham	We are both fine. Thanks
 ham	What happen to her tell the truth
 ham	Do you like Italian food?
 ham	Which is weird because I know I had it at one point
-ham	"Aww you must be nearly dead!Well Jez isComing over toDo some workAnd that whillTake forever!"
+ham	"Aww you must be nearly dead!Well Jez isComing over to do some workAnd that whillTake forever!"
 ham	Tell your friends what you plan to do on Valentines day @ &lt;URL&gt;
 ham	Alright, see you in a bit
 ham	Cheers for the message Zogtorius. Ive been staring at my phone for an age deciding whether to text or not.

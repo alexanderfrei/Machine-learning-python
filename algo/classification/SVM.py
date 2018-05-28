@@ -1,4 +1,3 @@
-# TODO check + descriptions
 
 import math
 class match_row:

@@ -1,5 +1,3 @@
-# TODO check
-
 
 from math import sqrt
 import random

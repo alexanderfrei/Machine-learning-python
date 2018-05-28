@@ -1,4 +1,3 @@
-# TODO: check and document functions
 
 import pandas as pd
 import numpy as np

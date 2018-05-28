@@ -1,4 +1,3 @@
-# TODO func descriptions
 
 from operator import itemgetter
 
